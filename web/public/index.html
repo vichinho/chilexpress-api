@@ -130,10 +130,10 @@
       }
       if (n.statusCode === -41 || n.statusCode === -81) {
         html += `<p class="note" style="margin-top:8px">
-          ⚠️ Chilexpress no reconoce esta OT en tu cuenta. Verifica que sea el
-          <b>N° de Orden de Transporte</b> (no el de seguimiento) y que el envío
-          se haya generado con tu cuenta de empresa. Un número de ~12 dígitos que
-          empieza en 6967… suele ser de seguimiento, no la OT.</p>`;
+          ⚠️ La API de Chilexpress no está devolviendo esta OT. Si la OT figura
+          en tu panel "OT Digital" bajo tu TCC (como corresponde), este bloqueo
+          es del lado de Chilexpress: hay que solicitar que <b>habiliten la API de
+          Tracking para tu suscripción/cuenta</b> (ver docs/SOPORTE-CHILEXPRESS.md).</p>`;
       }
       html += `</div>`;
       $("q-result").innerHTML = html;

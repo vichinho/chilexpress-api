@@ -6,6 +6,21 @@ que **sí existen** (visibles en el panel/web de Chilexpress) y fueron
 despachadas con la cuenta de la empresa, el problema es de **permiso/alcance**
 del lado de Chilexpress, no de la integración.
 
+## Evidencia concreta
+
+Las OT existen en el panel **"OT DIGITAL – Consulta de Órdenes de Transporte"**
+bajo la **TCC 18570793**, con estados vigentes, pero la **Tracking API** las
+rechaza con `-41`. Ejemplos verificados:
+
+| Nro. OT | Referencia | Estado en OT Digital | Respuesta API Tracking |
+|---|---|---|---|
+| 696733747463 | megasalud antofagasta | EN TRANSFERENCIA | statusCode -41 |
+| 696733602725 | MINERA ESCONDIDA | EN DESCARGO | statusCode -41 |
+
+Es decir: las OT **pertenecen a la cuenta** y **tienen estado**, pero la API no
+las devuelve. Falta que Chilexpress **habilite/asocie la suscripción de la API
+(producto Envíos/Tracking) a la cuenta comercial (TCC 18570793)**.
+
 ## Cómo se diagnosticó (para adjuntar)
 
 - **Endpoint:** `POST https://services.wschilexpress.com/transport-orders/api/v1.0/tracking`
@@ -31,12 +46,14 @@ del lado de Chilexpress, no de la integración.
 > Developers). La operación **"Consulta Individual De Envío"**
 > (`POST /transport-orders/api/v1.0/tracking`) autentica correctamente con
 > nuestra Subscription Key, pero devuelve **`statusCode -41 "La OT no se
-> encuentra disponible para consultar"`** para OT que **sí existen** y fueron
-> despachadas con nuestra cuenta.
+> encuentra disponible para consultar"`** para OT que **sí existen** en nuestro
+> panel **OT Digital** bajo nuestra TCC, con estado vigente.
 >
 > - **Empresa / RUT:** [COMPLETAR]
 > - **Tarjeta Cliente Chilexpress (TCC):** 18570793
-> - **OT de ejemplo (reciente, visible en el panel):** 696733602725
+> - **OT de ejemplo (visibles en OT Digital bajo nuestra TCC):**
+>   - 696733747463 — estado "EN TRANSFERENCIA"
+>   - 696733602725 — estado "EN DESCARGO"
 > - **Ambiente:** producción (`services.wschilexpress.com`)
 > - **Respuesta recibida:** `{"statusCode":-41,"statusDescription":"La OT no se encuentra disponible para consultar"}`
 >
