@@ -54,7 +54,8 @@ async function main() {
   console.log(`\nPOST ${url}`);
   console.log(`OT de prueba: ${ot}  (ambiente: ${cfg.environment})\n`);
 
-  const winners: string[] = [];
+  const found: string[] = []; // statusCode 0 -> OT ENCONTRADA
+  const accepted: string[] = []; // schema valido pero no encontrada (-41/-81)
 
   if (cfg.cardNumber) console.log(`TCC (customerCardNumber): ${cfg.cardNumber}\n`);
 
@@ -76,24 +77,28 @@ async function main() {
       } catch {
         statusCode = "?";
       }
-      const invalido = statusCode === 90;
-      const flag = invalido ? "❌" : "🟡/✅";
+      const flag = statusCode === 0 ? "✅ ENCONTRADA" : statusCode === 90 ? "❌ JSON invalido" : "🟡 aceptada";
       console.log(`${flag}  HTTP ${res.status}  statusCode=${String(statusCode)}  ${label}`);
-      console.log(`     ${text.slice(0, 300)}\n`);
-      if (!invalido && res.status < 500) winners.push(label);
+      console.log(`     ${text.slice(0, 400)}\n`);
+      if (statusCode === 0) found.push(label);
+      else if (statusCode !== 90 && res.status < 500) accepted.push(label);
     } catch (err) {
       console.log(`⚠️  ${label}  (${(err as Error).message})\n`);
     }
   }
 
-  console.log("----------------------------------------------------------------");
-  if (winners.length) {
-    console.log("Forma(s) de body ACEPTADAS por la operacion:");
-    for (const w of winners) console.log(`  • ${w}`);
-    console.log("\nPasame esta salida y fijo el body exacto en el TrackingService.");
+  console.log("================================================================");
+  if (found.length) {
+    console.log("✅ Forma(s) que ENCONTRARON la OT (statusCode 0):");
+    for (const w of found) console.log(`  • ${w}`);
+    console.log("\n¡Esa es la buena! Pasame la salida completa (con el JSON) y fijo el body + los tipos.");
+  } else if (accepted.length) {
+    console.log("🟡 Ninguna encontro la OT (todas -41/-81), pero el formato es valido.");
+    console.log("   El bloqueo NO es el body: es de permiso/alcance sobre esa OT.");
+    console.log("   Pasame la salida completa y vemos el siguiente paso con Chilexpress.");
   } else {
-    console.log("Ninguna forma fue aceptada. Pasame el 'Request body' de ejemplo");
-    console.log("que muestra el portal en la operacion 'Consulta Individual De Envío'.");
+    console.log("❌ Ninguna forma fue aceptada. Pasame el 'Request body' de ejemplo");
+    console.log("   que muestra el portal en 'Consulta Individual De Envío'.");
   }
 }
 
