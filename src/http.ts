@@ -76,6 +76,12 @@ export class HttpClient {
     const parsed = safeJsonParse(raw);
 
     if (!response.ok) {
+      // Chilexpress devuelve estados de negocio (p.ej. -41 "OT no disponible",
+      // -81 "OT no encontrada") con HTTP 400 pero con un sobre valido. En ese
+      // caso NO lanzamos: devolvemos el sobre para que el caller lea statusCode.
+      if (isBusinessEnvelope(parsed)) {
+        return parsed as T;
+      }
       throw new ChilexpressApiError(
         `Chilexpress respondio ${response.status} ${response.statusText} en ${opts.path}`,
         { status: response.status, url, body: parsed ?? raw }
@@ -84,6 +90,19 @@ export class HttpClient {
 
     return (parsed as T) ?? ({} as T);
   }
+}
+
+/**
+ * Un "sobre de negocio" de Chilexpress trae `statusDescription` (y suele traer
+ * `data`). Los errores del gateway (APIM) en cambio traen `message` sin
+ * `statusDescription`; esos SI deben lanzarse como error.
+ */
+function isBusinessEnvelope(parsed: unknown): boolean {
+  return (
+    typeof parsed === "object" &&
+    parsed !== null &&
+    ("statusDescription" in parsed || "data" in parsed)
+  );
 }
 
 function safeJsonParse(text: string): unknown {

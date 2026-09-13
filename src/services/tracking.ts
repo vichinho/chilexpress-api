@@ -6,8 +6,8 @@ import type { TrackingResponse } from "../types.js";
 /** Campo por el cual se consulta la OT en el body del tracking. */
 export type TrackingField = "reference" | "transportOrderNumber";
 
-/** statusCode que Chilexpress devuelve cuando la OT no existe. */
-const NOT_FOUND_STATUS = -81;
+/** statusCodes de "no disponible / no encontrada" al consultar una OT. */
+const UNAVAILABLE_STATUSES = new Set([-41, -81]);
 
 /**
  * Servicio de Tracking (seguimiento). Usa la operacion oficial
@@ -37,20 +37,24 @@ export class TrackingService {
   /**
    * Consulta el seguimiento de un envio por su numero de OT.
    *
-   * Intenta primero por `reference` y, si la OT no aparece (statusCode -81),
-   * reintenta por `transportOrderNumber`. Asi funciona sin importar cual sea
-   * el campo correcto para tu cuenta.
+   * Intenta primero por `transportOrderNumber` (el numero de OT) y, si no esta
+   * disponible (statusCode -41/-81), reintenta por `reference`. Devuelve la
+   * primera respuesta con exito (statusCode 0) o, si ninguna, la primera.
    *
    * @param trackingNumber Numero de orden de transporte (OT).
    */
   async getByTrackingNumber(trackingNumber: string | number): Promise<TrackingResponse> {
-    const primary = await this.query(trackingNumber, "reference");
-    if (primary.statusCode === NOT_FOUND_STATUS) {
-      const fallback = await this.query(trackingNumber, "transportOrderNumber");
-      // Si el fallback encuentra la OT, devolvemos ese; si no, el primero.
-      if (fallback.statusCode !== NOT_FOUND_STATUS) return fallback;
+    const fields: TrackingField[] = ["transportOrderNumber", "reference"];
+    let first: TrackingResponse | undefined;
+
+    for (const field of fields) {
+      const res = await this.query(trackingNumber, field);
+      first ??= res;
+      if (res.statusCode === 0) return res; // encontrada
+      if (!UNAVAILABLE_STATUSES.has(Number(res.statusCode))) return res; // otro estado real
     }
-    return primary;
+
+    return first!;
   }
 
   /**

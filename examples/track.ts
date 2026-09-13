@@ -32,6 +32,8 @@ async function main() {
       console.log(`Chilexpress: [${res.statusCode}] ${res.statusDescription ?? "(sin descripcion)"}`);
       if (res.statusCode === -81) {
         console.log("→ La OT no existe en este ambiente. Si es un envio real, usa CHILEXPRESS_ENV=production.");
+      } else if (res.statusCode === -41) {
+        console.log("→ La OT existe pero no esta disponible para consultar (muy antigua, de otra cuenta, o aun sin movimientos). Prueba con una OT reciente.");
       }
       return;
     }
