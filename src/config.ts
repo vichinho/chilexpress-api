@@ -5,10 +5,13 @@ import type { Environment } from "./endpoints.js";
 export interface ChilexpressConfig {
   /** Ambiente: "test" (pruebas) o "production". */
   environment: Environment;
-  /** Subscription Key del producto "Transport Orders" (Órdenes de Transporte). */
-  transportOrdersKey?: string;
-  /** Subscription Key del producto "Tracking". */
-  trackingKey?: string;
+  /**
+   * Subscription Key del producto "Envíos".
+   * Cubre la generación de órdenes de transporte y el tracking.
+   */
+  enviosKey?: string;
+  /** Subscription Key del producto "Coberturas" (comunas / códigos de cobertura). */
+  coberturasKey?: string;
   /** Timeout por request en milisegundos. */
   timeoutMs: number;
 }
@@ -29,8 +32,8 @@ export function loadConfig(
 
   return {
     environment: parseEnvironment(process.env.CHILEXPRESS_ENV),
-    transportOrdersKey: process.env.CHILEXPRESS_TRANSPORT_ORDERS_KEY,
-    trackingKey: process.env.CHILEXPRESS_TRACKING_KEY,
+    enviosKey: process.env.CHILEXPRESS_ENVIOS_KEY,
+    coberturasKey: process.env.CHILEXPRESS_COBERTURAS_KEY,
     timeoutMs: Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 15_000,
     ...overrides,
   };

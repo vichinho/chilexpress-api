@@ -25,8 +25,8 @@ export class TransportOrdersService {
       method: "POST",
       path: PATHS.transportOrders,
       body: request,
-      subscriptionKey: this.config.transportOrdersKey,
-      productName: "Transport Orders",
+      subscriptionKey: this.config.enviosKey,
+      productName: "Envíos",
     });
   }
 
@@ -38,8 +38,8 @@ export class TransportOrdersService {
       method: "POST",
       path: PATHS.transportOrdersMassive,
       body: requests,
-      subscriptionKey: this.config.transportOrdersKey,
-      productName: "Transport Orders",
+      subscriptionKey: this.config.enviosKey,
+      productName: "Envíos",
     });
   }
 }

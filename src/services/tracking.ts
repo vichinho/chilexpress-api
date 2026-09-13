@@ -26,8 +26,8 @@ export class TrackingService {
       method: "GET",
       path: PATHS.tracking,
       pathParams: { trackingNumber },
-      subscriptionKey: this.config.trackingKey,
-      productName: "Tracking",
+      subscriptionKey: this.config.enviosKey,
+      productName: "Envíos",
     });
   }
 }

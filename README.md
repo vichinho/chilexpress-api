@@ -27,11 +27,11 @@ Chilexpress autentica con una **Subscription Key** por header
 propia key:
 
 1. Entra a <https://developers.wschilexpress.com> con tu cuenta de empresa.
-2. En **APIs / Productos**, suscribe:
-   - **Transport Orders** (Órdenes de Transporte)
-   - **Tracking** (Seguimiento)
-   - *(opcional para más adelante)* **Rates** (Cotizador) y **Geo** (Coberturas).
-3. En tu **perfil**, copia la **Primary Key** de cada producto.
+2. En el **desplegable de productos**, suscribe:
+   - **Envíos** → genera órdenes de transporte y entrega el tracking.
+   - **Coberturas** → comunas y códigos de cobertura (para origen/destino).
+   - *(opcional para más adelante)* **Cotizador**.
+3. En **"Tus Suscripciones"**, copia la **Primary Key** de cada una.
 
 ## 3. Configuración
 
@@ -43,9 +43,9 @@ cp .env.example .env
 Edita `.env` con tus keys reales:
 
 ```env
-CHILEXPRESS_ENV=test                       # "test" o "production"
-CHILEXPRESS_TRANSPORT_ORDERS_KEY=...        # key del producto Transport Orders
-CHILEXPRESS_TRACKING_KEY=...                # key del producto Tracking
+CHILEXPRESS_ENV=test                # "test" o "production"
+CHILEXPRESS_ENVIOS_KEY=...          # key del producto "Envíos" (OT + tracking)
+CHILEXPRESS_COBERTURAS_KEY=...      # key del producto "Coberturas"
 ```
 
 El archivo `.env` está en `.gitignore` — **nunca** se commitean las keys.
