@@ -7,8 +7,8 @@ import type {
 } from "../types.js";
 
 /**
- * Servicio de Órdenes de Transporte. Permite generar envios y obtener su
- * numero de OT, codigo de barras y etiqueta imprimible.
+ * Servicio de Órdenes de Transporte ("Envíos"). Permite generar envios y
+ * obtener su numero de OT, codigo de barras y etiqueta imprimible.
  */
 export class TransportOrdersService {
   private readonly http: HttpClient;
@@ -17,7 +17,7 @@ export class TransportOrdersService {
     this.http = new HttpClient(config);
   }
 
-  /** Crea una orden de transporte individual. */
+  /** "Generar envío": crea una orden de transporte. */
   async create(
     request: CreateTransportOrderRequest
   ): Promise<CreateTransportOrderResponse> {
@@ -25,19 +25,6 @@ export class TransportOrdersService {
       method: "POST",
       path: PATHS.transportOrders,
       body: request,
-      subscriptionKey: this.config.enviosKey,
-      productName: "Envíos",
-    });
-  }
-
-  /** Crea varias ordenes de transporte en un solo request. */
-  async createMany(
-    requests: CreateTransportOrderRequest[]
-  ): Promise<CreateTransportOrderResponse> {
-    return this.http.request<CreateTransportOrderResponse>({
-      method: "POST",
-      path: PATHS.transportOrdersMassive,
-      body: requests,
       subscriptionKey: this.config.enviosKey,
       productName: "Envíos",
     });

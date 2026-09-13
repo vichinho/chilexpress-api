@@ -4,9 +4,8 @@ import type { ChilexpressConfig } from "../config.js";
 import type { TrackingResponse } from "../types.js";
 
 /**
- * Servicio de Tracking (seguimiento). Permite consultar el estado actual y
- * el historial de eventos de un envio por su numero de seguimiento
- * (transportOrderNumber / OT).
+ * Servicio de Tracking (seguimiento). Usa la operacion oficial
+ * "Consulta Individual De Envío": POST /transport-orders/api/v1.0/tracking.
  */
 export class TrackingService {
   private readonly http: HttpClient;
@@ -16,16 +15,30 @@ export class TrackingService {
   }
 
   /**
-   * Consulta el seguimiento de un envio.
+   * Consulta el seguimiento de un envio por su numero de OT.
    *
-   * @param trackingNumber Numero de orden de transporte (OT) a consultar.
-   * @returns Sobre estandar de Chilexpress con el estado y el historial.
+   * @param trackingNumber Numero de orden de transporte (OT).
    */
   async getByTrackingNumber(trackingNumber: string | number): Promise<TrackingResponse> {
     return this.http.request<TrackingResponse>({
-      method: "GET",
+      method: "POST",
       path: PATHS.tracking,
-      pathParams: { trackingNumber },
+      // ⚠️ Cuerpo pendiente de confirmar con "npm run probe-body".
+      // Se ajustara al formato exacto que acepte la operacion.
+      body: { trackingNumber: String(trackingNumber) },
+      subscriptionKey: this.config.enviosKey,
+      productName: "Envíos",
+    });
+  }
+
+  /**
+   * Consulta múltiple de envios ("tracking/bulk"): varias OT en un request.
+   */
+  async getMany(trackingNumbers: Array<string | number>): Promise<TrackingResponse> {
+    return this.http.request<TrackingResponse>({
+      method: "POST",
+      path: PATHS.trackingBulk,
+      body: { trackingNumbers: trackingNumbers.map(String) },
       subscriptionKey: this.config.enviosKey,
       productName: "Envíos",
     });

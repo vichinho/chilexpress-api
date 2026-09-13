@@ -24,19 +24,21 @@ export const BASE_URLS: Record<Environment, string> = {
  * corresponda; el cliente lo reemplaza con el valor real (URL-encoded).
  */
 export const PATHS = {
-  /** Órdenes de Transporte — crear una orden individual. */
+  /** "Generar envío" — crear una orden de transporte. (POST) */
   transportOrders: "/transport-orders/api/v1.0/transport-orders",
 
-  /** Órdenes de Transporte — crear varias ordenes en un solo request. */
-  transportOrdersMassive: "/transport-orders/api/v1.0/transport-orders/massive",
+  /** "Reimpresión de etiquetas". (POST) */
+  reprintLabels: "/transport-orders/api/v1.0/transport-orders-labels",
 
   /**
-   * Tracking — consultar el estado (y datos) de un envio por su numero de OT.
-   * Verificado contra el gateway: GET devuelve el sobre estandar; statusCode 0
-   * == OK, y -81 == "No se encontraron coincidencias" (OT inexistente en ese
-   * ambiente).
+   * "Consulta Individual De Envío" — tracking de UNA OT. (POST)
+   * Ruta oficial del portal (producto "Envíos"). El cuerpo esperado se
+   * resuelve en TrackingService.
    */
-  tracking: "/transport-orders/api/v1.0/transport-orders/{trackingNumber}",
+  tracking: "/transport-orders/api/v1.0/tracking",
+
+  /** "Consulta múltiple de envíos" — tracking de varias OT. (POST) */
+  trackingBulk: "/transport-orders/api/v1.0/tracking/bulk",
 } as const;
 
 /** Nombre del header de autenticacion usado por el gateway de Chilexpress. */
