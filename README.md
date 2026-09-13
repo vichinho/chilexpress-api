@@ -50,6 +50,18 @@ CHILEXPRESS_COBERTURAS_KEY=...      # key del producto "Coberturas"
 
 El archivo `.env` está en `.gitignore` — **nunca** se commitean las keys.
 
+### Diagnóstico rápido
+
+Si al consultar te dice *"Falta la subscription key…"*, corre el diagnóstico
+(no muestra tus keys, solo si las detecta):
+
+```bash
+npm run doctor
+```
+
+Te dirá si el `.env` está en la carpeta correcta y si cada variable está
+bien definida.
+
 ## 4. Uso
 
 ### Consultar seguimiento de un envío (caso principal)
