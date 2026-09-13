@@ -12,6 +12,7 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "doctor": "tsx examples/doctor.ts",
+    "probe": "tsx examples/probe-tracking.ts",
     "track": "tsx examples/track.ts",
     "create-order": "tsx examples/create-order.ts"
   },
