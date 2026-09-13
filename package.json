@@ -14,13 +14,16 @@
     "doctor": "tsx examples/doctor.ts",
     "probe": "tsx examples/probe-tracking.ts",
     "probe-body": "tsx examples/probe-tracking-body.ts",
+    "web": "tsx web/server.ts",
     "track": "tsx examples/track.ts",
     "create-order": "tsx examples/create-order.ts"
   },
   "dependencies": {
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "express": "^4.22.2"
   },
   "devDependencies": {
+    "@types/express": "^4.17.25",
     "@types/node": "^22.0.0",
     "tsx": "^4.19.0",
     "typescript": "^5.6.0"

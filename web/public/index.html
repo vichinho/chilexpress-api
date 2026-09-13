@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Seguimiento Chilexpress</title>
+  <style>
+    :root {
+      --bg: #f4f6f8; --card: #fff; --ink: #1a1f24; --muted: #6b7680;
+      --line: #e3e8ec; --brand: #ffcc00; --ink-brand: #1a1f24;
+      --ok: #137333; --warn: #b26a00; --err: #c5221f; --accent: #0b57d0;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+           background: var(--bg); color: var(--ink); }
+    header { background: var(--brand); color: var(--ink-brand); padding: 18px 20px; }
+    header h1 { margin: 0; font-size: 19px; }
+    header small { opacity: .8; }
+    main { max-width: 960px; margin: 0 auto; padding: 20px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+            padding: 18px; margin-bottom: 18px; }
+    h2 { font-size: 16px; margin: 0 0 12px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    input[type=text] { flex: 1; min-width: 160px; padding: 10px 12px; border: 1px solid var(--line);
+            border-radius: 8px; font-size: 15px; }
+    button { padding: 10px 16px; border: 0; border-radius: 8px; background: var(--accent);
+            color: #fff; font-size: 14px; cursor: pointer; }
+    button.secondary { background: #eef1f4; color: var(--ink); }
+    button.ghost { background: transparent; color: var(--err); padding: 6px 8px; }
+    button:disabled { opacity: .5; cursor: default; }
+    .note { color: var(--muted); font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line);
+            font-size: 14px; vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .b-ok { background: #e6f4ea; color: var(--ok); }
+    .b-warn { background: #fef7e0; color: var(--warn); }
+    .b-err { background: #fce8e6; color: var(--err); }
+    .events { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
+    .result { margin-top: 12px; }
+    .mono { font-variant-numeric: tabular-nums; font-weight: 600; }
+    .msg { padding: 10px 12px; border-radius: 8px; font-size: 14px; margin-top: 10px; display: none; }
+    .msg.show { display: block; }
+    .msg.err { background: #fce8e6; color: var(--err); }
+    .msg.ok { background: #e6f4ea; color: var(--ok); }
+    .actions { white-space: nowrap; }
+    .env { font-size: 12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🚚 Seguimiento de envíos · Chilexpress</h1>
+    <small>Dosimet — consulta de OT y estado de despachos</small>
+  </header>
+
+  <main>
+    <!-- Consulta individual -->
+    <section class="card">
+      <h2>Consulta individual</h2>
+      <div class="row">
+        <input id="q-ot" type="text" placeholder="Número de OT (ej: 696733602725)" />
+        <button id="q-btn">Consultar</button>
+        <button id="q-add" class="secondary">Consultar y registrar</button>
+      </div>
+      <div id="q-msg" class="msg"></div>
+      <div id="q-result" class="result"></div>
+    </section>
+
+    <!-- Registro de OT -->
+    <section class="card">
+      <h2>Envíos registrados</h2>
+      <p class="note">
+        La API de Chilexpress no lista "todos los envíos por RUT"; aquí se muestran
+        las OT que registres. Usa <b>Actualizar todos</b> para refrescar sus estados.
+      </p>
+      <div class="row" style="margin-bottom: 8px;">
+        <input id="add-ot" type="text" placeholder="Agregar OT…" />
+        <input id="add-note" type="text" placeholder="Nota (opcional: cliente/dosímetro)" />
+        <button id="add-btn">Agregar</button>
+        <button id="refresh-btn" class="secondary">Actualizar todos</button>
+      </div>
+      <div id="list-msg" class="msg"></div>
+      <table>
+        <thead>
+          <tr><th>OT</th><th>Nota</th><th>Estado</th><th>Actualizado</th><th></th></tr>
+        </thead>
+        <tbody id="list-body">
+          <tr><td colspan="5" class="note">Cargando…</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    function badge(rec) {
+      if (rec.lastStatusCode === 0) return `<span class="badge b-ok">${esc(rec.lastStatus || "OK")}</span>`;
+      if (rec.lastStatusCode == null) return `<span class="badge b-warn">${esc(rec.lastStatus || "Sin consultar")}</span>`;
+      return `<span class="badge b-err">${esc(rec.lastStatus || "No disponible")}</span>`;
+    }
+    function esc(s) { return String(s ?? "").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+    function fecha(iso) { return iso ? new Date(iso).toLocaleString("es-CL") : "—"; }
+
+    function showMsg(el, text, kind) {
+      el.className = "msg show " + (kind || "");
+      el.textContent = text;
+    }
+    function hideMsg(el) { el.className = "msg"; }
+
+    // --- Consulta individual ---
+    async function consultar(ot) {
+      hideMsg($("q-msg"));
+      $("q-result").innerHTML = "";
+      const r = await fetch("/api/track/" + encodeURIComponent(ot));
+      const data = await r.json();
+      if (!r.ok) { showMsg($("q-msg"), data.error || "Error", "err"); return; }
+      renderResult(data);
+    }
+    function renderResult(n) {
+      const kind = n.ok ? "b-ok" : (n.statusCode == null ? "b-warn" : "b-err");
+      let html = `<div class="card" style="margin:0">
+        <div><b>OT ${esc(n.ot)}</b> · <span class="badge ${kind}">${esc(n.ok ? n.currentStatus : n.statusText)}</span>
+        <span class="note">(statusCode ${esc(n.statusCode)})</span></div>`;
+      if (n.events && n.events.length) {
+        html += `<ul class="events">` + n.events.map(e =>
+          `<li>${esc(e.date || "")} — ${esc(e.description || "")}${e.location ? " · " + esc(e.location) : ""}</li>`
+        ).join("") + `</ul>`;
+      }
+      html += `</div>`;
+      $("q-result").innerHTML = html;
+    }
+
+    $("q-btn").onclick = () => { const v = $("q-ot").value.trim(); if (v) consultar(v); };
+    $("q-ot").addEventListener("keydown", e => { if (e.key === "Enter") $("q-btn").click(); });
+    $("q-add").onclick = async () => {
+      const v = $("q-ot").value.trim(); if (!v) return;
+      await agregar(v, "");
+      consultar(v);
+    };
+
+    // --- Registro ---
+    async function cargarLista() {
+      const r = await fetch("/api/ots");
+      const list = await r.json();
+      render(list);
+    }
+    function render(list) {
+      const body = $("list-body");
+      if (!list.length) { body.innerHTML = `<tr><td colspan="5" class="note">Aún no hay OT registradas.</td></tr>`; return; }
+      body.innerHTML = list.map(rec => `
+        <tr>
+          <td class="mono">${esc(rec.ot)}</td>
+          <td>${esc(rec.note || "")}</td>
+          <td>${badge(rec)}</td>
+          <td class="note">${fecha(rec.lastCheckedAt)}</td>
+          <td class="actions">
+            <button class="secondary" data-ver="${esc(rec.ot)}">Ver</button>
+            <button class="ghost" data-del="${esc(rec.ot)}">Eliminar</button>
+          </td>
+        </tr>`).join("");
+      body.querySelectorAll("[data-del]").forEach(b => b.onclick = () => eliminar(b.dataset.del));
+      body.querySelectorAll("[data-ver]").forEach(b => b.onclick = () => { $("q-ot").value = b.dataset.ver; consultar(b.dataset.ver); window.scrollTo({top:0,behavior:"smooth"}); });
+    }
+    async function agregar(ot, note) {
+      hideMsg($("list-msg"));
+      const r = await fetch("/api/ots", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ ot, note }) });
+      const data = await r.json();
+      if (!r.ok) { showMsg($("list-msg"), data.error || "Error", "err"); return false; }
+      await cargarLista();
+      return true;
+    }
+    $("add-btn").onclick = async () => {
+      const ot = $("add-ot").value.trim(); if (!ot) return;
+      const ok = await agregar(ot, $("add-note").value.trim());
+      if (ok) { $("add-ot").value = ""; $("add-note").value = ""; }
+    };
+    $("refresh-btn").onclick = async () => {
+      $("refresh-btn").disabled = true; $("refresh-btn").textContent = "Actualizando…";
+      const r = await fetch("/api/ots/refresh", { method: "POST" });
+      render(await r.json());
+      $("refresh-btn").disabled = false; $("refresh-btn").textContent = "Actualizar todos";
+    };
+    async function eliminar(ot) {
+      await fetch("/api/ots/" + encodeURIComponent(ot), { method: "DELETE" });
+      cargarLista();
+    }
+
+    cargarLista();
+  </script>
+</body>
+</html>

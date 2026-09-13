@@ -46,6 +46,7 @@ Edita `.env` con tus keys reales:
 CHILEXPRESS_ENV=test                # "test" o "production"
 CHILEXPRESS_ENVIOS_KEY=...          # key del producto "Envíos" (OT + tracking)
 CHILEXPRESS_COBERTURAS_KEY=...      # key del producto "Coberturas"
+CHILEXPRESS_CARD_NUMBER=...         # TCC (Tarjeta Cliente Chilexpress) de la empresa
 ```
 
 El archivo `.env` está en `.gitignore` — **nunca** se commitean las keys.
@@ -83,6 +84,25 @@ for (const ev of res.data?.statusList ?? []) {
   console.log(ev.date, ev.description, ev.location);
 }
 ```
+
+### Web de seguimiento
+
+Una interfaz simple para consultar OT y llevar un registro de los envíos:
+
+```bash
+npm run web            # abre http://localhost:3000
+```
+
+- **Consulta individual:** ingresa una OT y ve su estado y eventos.
+- **Envíos registrados:** agrega las OT que te interesan; el servidor las guarda
+  en `data/ots.json` y puedes refrescar el estado de todas con un botón.
+
+> La API de Chilexpress **no** ofrece "listar todos los envíos por RUT": solo se
+> pueden consultar OT conocidas (individual o en lote). Por eso la web mantiene
+> un registro de las OT de la empresa. Lo ideal es registrar la OT
+> automáticamente al generar cada envío por API.
+
+Las subscription keys se usan solo en el servidor; el navegador nunca las recibe.
 
 ### Crear una orden de transporte + etiqueta
 

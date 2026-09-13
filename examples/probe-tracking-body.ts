@@ -15,20 +15,26 @@
 import { loadConfig } from "../src/config.js";
 import { BASE_URLS, PATHS, SUBSCRIPTION_KEY_HEADER } from "../src/endpoints.js";
 
-function bodies(ot: string): Array<{ label: string; body: unknown }> {
+function bodies(ot: string, card?: string): Array<{ label: string; body: unknown }> {
   const n = Number(ot);
-  return [
-    { label: "{ trackingNumber: <number> }", body: { trackingNumber: n } },
-    { label: "{ trackingNumber: <string> }", body: { trackingNumber: ot } },
-    { label: "{ reference: <string> }", body: { reference: ot } },
-    { label: "{ reference: <number> }", body: { reference: n } },
+  const c = card ? Number(card) : undefined;
+  const list: Array<{ label: string; body: unknown }> = [
     { label: "{ transportOrderNumber: <number> }", body: { transportOrderNumber: n } },
     { label: "{ transportOrderNumber: <string> }", body: { transportOrderNumber: ot } },
-    { label: "{ otNumber: <string> }", body: { otNumber: ot } },
-    { label: "{ code: <string> }", body: { code: ot } },
-    { label: "{ trackingNumber, informationLevelCode }", body: { trackingNumber: n, informationLevelCode: 1 } },
-    { label: "{ reference, informationLevel }", body: { reference: ot, informationLevel: 1 } },
+    { label: "{ reference: <string> }", body: { reference: ot } },
+    { label: "{ reference: <number> }", body: { reference: n } },
   ];
+
+  // Variantes con la Tarjeta Cliente (customerCardNumber) — sospechoso del -41.
+  if (card) {
+    list.push(
+      { label: "{ transportOrderNumber:<num>, customerCardNumber:<num> }", body: { transportOrderNumber: n, customerCardNumber: c } },
+      { label: "{ transportOrderNumber:<str>, customerCardNumber:<str> }", body: { transportOrderNumber: ot, customerCardNumber: card } },
+      { label: "{ reference:<str>, customerCardNumber:<num> }", body: { reference: ot, customerCardNumber: c } },
+      { label: "{ transportOrderNumber:<num>, customerCardNumber:<num>, informationLevel:1 }", body: { transportOrderNumber: n, customerCardNumber: c, informationLevel: 1 } },
+    );
+  }
+  return list;
 }
 
 async function main() {
@@ -50,7 +56,9 @@ async function main() {
 
   const winners: string[] = [];
 
-  for (const { label, body } of bodies(ot)) {
+  if (cfg.cardNumber) console.log(`TCC (customerCardNumber): ${cfg.cardNumber}\n`);
+
+  for (const { label, body } of bodies(ot, cfg.cardNumber)) {
     try {
       const res = await fetch(url, {
         method: "POST",

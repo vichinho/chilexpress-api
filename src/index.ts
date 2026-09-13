@@ -4,6 +4,7 @@ import { TransportOrdersService } from "./services/transportOrders.js";
 
 export * from "./types.js";
 export * from "./errors.js";
+export * from "./normalize.js";
 export { PATHS, BASE_URLS, type Environment } from "./endpoints.js";
 export type { ChilexpressConfig } from "./config.js";
 export { TrackingService, type TrackingField } from "./services/tracking.js";

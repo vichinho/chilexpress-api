@@ -23,3 +23,6 @@ npm-debug.log*
 # Etiquetas / PDFs generados en pruebas
 *.pdf
 labels/
+
+# Registro local de OT (datos de la empresa)
+data/
