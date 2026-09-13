@@ -6,7 +6,7 @@ export * from "./types.js";
 export * from "./errors.js";
 export { PATHS, BASE_URLS, type Environment } from "./endpoints.js";
 export type { ChilexpressConfig } from "./config.js";
-export { TrackingService } from "./services/tracking.js";
+export { TrackingService, type TrackingField } from "./services/tracking.js";
 export { TransportOrdersService } from "./services/transportOrders.js";
 
 /**
