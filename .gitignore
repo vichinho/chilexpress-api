@@ -1,0 +1,25 @@
+# Dependencias
+node_modules/
+
+# Build
+dist/
+
+# Variables de entorno (NUNCA commitear las keys reales)
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Etiquetas / PDFs generados en pruebas
+*.pdf
+labels/

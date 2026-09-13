@@ -1,0 +1,25 @@
+{
+  "name": "chilexpress-api",
+  "version": "0.1.0",
+  "description": "Cliente TypeScript para la API de Chilexpress (Órdenes de Transporte y Tracking)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "track": "tsx examples/track.ts",
+    "create-order": "tsx examples/create-order.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}
