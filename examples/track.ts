@@ -25,10 +25,20 @@ async function main() {
     const res = await client.tracking.getByTrackingNumber(trackingNumber);
 
     console.log(`\nEnvio ${trackingNumber}`);
-    console.log(`Estado actual: ${res.data?.statusDescription ?? "(sin dato)"}`);
 
-    const eventos = res.data?.statusList ?? [];
+    // El sobre trae statusCode top-level: 0 == OK; negativo == error de negocio
+    // (p.ej. -81 == OT no encontrada). El detalle viene en `data`.
+    if (res.statusCode !== 0 || !res.data) {
+      console.log(`Chilexpress: [${res.statusCode}] ${res.statusDescription ?? "(sin descripcion)"}`);
+      if (res.statusCode === -81) {
+        console.log("→ La OT no existe en este ambiente. Si es un envio real, usa CHILEXPRESS_ENV=production.");
+      }
+      return;
+    }
+
+    const eventos = res.data.statusList ?? [];
     if (eventos.length > 0) {
+      console.log(`Estado actual: ${res.data.statusDescription ?? eventos[eventos.length - 1]?.description ?? "(sin dato)"}`);
       console.log("\nHistorial:");
       for (const ev of eventos) {
         const fecha = ev.date ?? "";
@@ -37,8 +47,10 @@ async function main() {
         console.log(`  [${fecha}] ${desc}${lugar}`);
       }
     } else {
-      console.log("\n(Sin eventos en el historial o formato distinto — revisa la respuesta cruda abajo)");
-      console.log(JSON.stringify(res, null, 2));
+      // OT encontrada pero con un formato de datos que aun no mapeamos:
+      // mostramos el JSON crudo para ajustar los tipos a lo que devuelve.
+      console.log("Datos de la OT (revisa la forma para afinar los tipos):");
+      console.log(JSON.stringify(res.data, null, 2));
     }
   } catch (err) {
     if (err instanceof ChilexpressApiError) {

@@ -31,10 +31,12 @@ export const PATHS = {
   transportOrdersMassive: "/transport-orders/api/v1.0/transport-orders/massive",
 
   /**
-   * Tracking — consultar el estado y el historial de eventos de un envio.
-   * Verifica el metodo/version exactos en tu producto "Tracking" del portal.
+   * Tracking — consultar el estado (y datos) de un envio por su numero de OT.
+   * Verificado contra el gateway: GET devuelve el sobre estandar; statusCode 0
+   * == OK, y -81 == "No se encontraron coincidencias" (OT inexistente en ese
+   * ambiente).
    */
-  tracking: "/tracking/api/v1.0/tracking/{trackingNumber}",
+  tracking: "/transport-orders/api/v1.0/transport-orders/{trackingNumber}",
 } as const;
 
 /** Nombre del header de autenticacion usado por el gateway de Chilexpress. */
