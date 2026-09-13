@@ -128,6 +128,13 @@
           `<li>${esc(e.date || "")} — ${esc(e.description || "")}${e.location ? " · " + esc(e.location) : ""}</li>`
         ).join("") + `</ul>`;
       }
+      if (n.statusCode === -41 || n.statusCode === -81) {
+        html += `<p class="note" style="margin-top:8px">
+          ⚠️ Chilexpress no reconoce esta OT en tu cuenta. Verifica que sea el
+          <b>N° de Orden de Transporte</b> (no el de seguimiento) y que el envío
+          se haya generado con tu cuenta de empresa. Un número de ~12 dígitos que
+          empieza en 6967… suele ser de seguimiento, no la OT.</p>`;
+      }
       html += `</div>`;
       $("q-result").innerHTML = html;
     }
