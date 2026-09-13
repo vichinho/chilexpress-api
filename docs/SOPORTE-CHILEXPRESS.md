@@ -49,6 +49,13 @@ las devuelve. Falta que Chilexpress **habilite/asocie la suscripción de la API
 > encuentra disponible para consultar"`** para OT que **sí existen** en nuestro
 > panel **OT Digital** bajo nuestra TCC, con estado vigente.
 >
+> Creemos que la causa es que la **Subscription Key fue generada desde una
+> cuenta personal del Portal Developers**, mientras que las OT pertenecen a la
+> **cuenta comercial de la empresa (TCC 18570793)**. Necesitamos que la API
+> quede asociada a esa TCC para poder consultar nuestras OT. **¿Deben asociar
+> nuestra TCC a la suscripción actual, o debemos crear la suscripción desde la
+> cuenta de la empresa?**
+>
 > - **Empresa / RUT:** [COMPLETAR]
 > - **Tarjeta Cliente Chilexpress (TCC):** 18570793
 > - **OT de ejemplo (visibles en OT Digital bajo nuestra TCC):**
